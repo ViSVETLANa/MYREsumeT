@@ -1,0 +1,8 @@
+Создать базу данных:
+
+СREATE DATABASES TestDatabese;
+
+
+Cоздать таблицу Сustamer:
+
+CREATE TABLE Custamer;
