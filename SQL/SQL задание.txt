@@ -1,0 +1,97 @@
+ В БД есть 3 сущности: FIO_person, Salary и JobPosition. 
+1) Таблица FIO_person содержит атрибуты- ID (id сотрудника), FIO (ФИО сотрудника) 
+2) Таблица Salary содержит атрибуты- Salary_ID (id записи по ЗП), Person_ID (внешний ключ к таблице FIO_person), Value (ЗП сотрудника) 
+3) Таблица JobPosition содержит атрибуты- Position_ID (id записи по должности), Person_ID (внешний ключ к таблице FIO_person), NamePosition (название должности), Duration (кол-во лет в должности) 
+Задача: Получить список всех ФИО сотрудников по должности «Разработчик» с зарплатой, большей 10 000 рублей.
+
+
+
+
+mysql> create TABLE FIO_person (
+    -> ID  INT NOT NULL UNIQUE,
+    -> FIO VARCHAR (60) NOT NULL,
+    -> PRIMARY KEY (ID)
+    -> );
+Query OK, 0 rows affected (0.07 sec)
+
+mysql> CREATE TABLE SALARY (
+    -> Salary_ID INT NOT NULL UNIQUE,
+    -> Person_ID INT NOT NULL,
+    -> Value DECIMAL NOT NULL,
+    -> PRIMARY KEY (Salary_ID),
+    -> FOREIGN KEY (Person_ID) REFERENCES FIO_person (ID)
+    -> );
+Query OK, 0 rows affected (0.06 sec)
+
+mysql> CREATE TABLE JobPosition (
+    -> Position_ID INT NOT NULL UNIQUE,
+    -> Person_ID INT,
+    -> NamePosition VARCHAR(60) NOT NULL,
+    -> Duration INT NOT NULL,
+    -> PRIMARY KEY (Position_ID),
+    -> FOREIGN KEY (Person_ID) REFERENCES FIO_person (ID)
+    -> );
+Query OK, 0 rows affected (0.09 sec)
+> INSERT INTO FIO_person (ID, FIO)
+    -> VALUES (1, "Влюшина С.В."),
+    ->  (2, "Иванов И.И."),
+    ->  (3, "Петров П.П.");
+Query OK, 3 rows affected (0.01 sec)
+Records: 3  Duplicates: 0  Warnings: 0
+
+mysql> INSERT INTO JobPosition ( Position_id, Person_id, NamePosition, Duration)
+    -> VALUES (1, 1, "Junior",2),
+    -> (2, 2, "Middle", 5),
+    -> (3, 3, "Teamled", 7);
+Query OK, 3 rows affected (0.01 sec)
+
+
+Records: 3  Duplicates: 0  Warnings: 0
+mysql> INSERT INTO Salary ( Salary_ID, Person_ID, Value)
+    -> VALUES (1, 1, 50000),
+    -> (2, 2, 100000),
+    -> (3, 3, 150000);
+Query OK, 3 rows affected (0.02 sec)
+Records: 3  Duplicates: 0  Warnings: 0
+
+1 row in set (0.01 sec)
+ SELECT * FROM FIO_Person;
++----+-----------------+
+| ID | FIO             |
++----+-----------------+
+|  1 | Влюшина С.В.    |
+|  2 | Иванов И.И.     |
+|  3 | Петров П.П.     |
++----+-----------------+
+3 rows in set (0.00 sec)
+
+mysql> SELECT * FROM JobPosition;
++-------------+-----------+--------------+----------+
+| Position_ID | Person_ID | NamePosition | Duration |
++-------------+-----------+--------------+----------+
+|           1 |         1 | Junior       |        2 |
+|           2 |         2 | Middle       |        5 |
+|           3 |         3 | Teamled      |        7 |
++-------------+-----------+--------------+----------+
+3 rows in set (0.00 sec)
+
+mysql> SELECT * FROM salary;
++-----------+-----------+--------+
+| Salary_ID | Person_ID | Value  |
++-----------+-----------+--------+
+|         1 |         1 |  50000 |
+|         2 |         2 | 100000 |
+|         3 |         3 | 150000 |
++-----------+-----------+--------+
+3 rows in set (0.00 sec)
+
+ mysql> SELECT p.FIO, S.Value, J.NamePosition FROM FIO_person as p
+    -> INNER JOIN JobPosition as J on p.ID = J.Person_ID
+    -> INNER JOIN Salary as S on p.ID = S.Person_ID
+    -> WHERE S.Value > 10000
+    -> and J.NamePosition = "Middle";
++----------------+--------+--------------+
+| FIO            | Value  | NamePosition |
++----------------+--------+--------------+
+|  Иванов И.И.   | 100000 |  Middle      |
++----------------+--------+--------------+
